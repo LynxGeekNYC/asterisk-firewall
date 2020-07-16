@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RANGEBRASIL="/usr/RANGE_BRASIL"
+RANGEBRASIL="/usr/RANGE"
 CONFIG="/usr/firewall.conf"
 IPTABLES=/sbin/iptables
 	
@@ -8,65 +8,66 @@ IPTABLES=/sbin/iptables
 
 		echo ""
 		echo "#######################################"
-		echo "########## FIREWALL ERIX 2.0 ##########"
+		echo "########## Asterisk FireWall ##########"
 		echo "#######################################"
 		echo ""
 
-# Limpar Tabela
-		# Limpa todas as Rules em todas as tabelas
+# Clear Table
+		# Clear All Rules on All tables
 		$IPTABLES -t filter -F
 		$IPTABLES -t nat -F
 		$IPTABLES -t mangle -F
-		# Remove todas as Chains em todas as tabelas
+		# Remove all Chains in All tables
 		$IPTABLES -t filter -X
 		$IPTABLES -t nat -X
 		$IPTABLES -t mangle -X
-		#Zera todos os contadores de todas as Chains em todas as tabelas
+		#Reset all counters for all Chains in all tables
 		$IPTABLES -t filter -Z
 		$IPTABLES -t nat -Z
 		$IPTABLES -t mangle -Z
 		echo ""
-		echo "##### ZERANDO TODAS AS REGRAS..............[OK]"
-# Carrega os modulos
+		echo "##### RESETTING ALL RULES..............[OK]"
+# Load the Modules
 		modprobe ip_tables
 		modprobe iptable_filter
 		modprobe iptable_mangle
 		modprobe iptable_nat
 		modprobe ipt_MASQUERADE
 
-#libera ping no kernel, pode ser trocado o valor para 1 para desabilitar o ping
+# Releases kernel ping, can be changed to 1 to disable ping
 		echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_all
 
-#estabelece syn_cookie para evitar ataque de syn_flood
+# sets syn_cookie to prevent syn_flood attack
 		echo "1" > /proc/sys/net/ipv4/tcp_syncookies
 
-# Protege contra IP spoofing:
+# Protege contra IP spoofing
 		echo 1 > /proc/sys/net/ipv4/conf/default/rp_filter
 
-# Descarta pacotes malformados, protegendo contra ataques diversos:
+# Discards malformed packages, protecting against various attacks:
 		$IPTABLES -I INPUT -m state --state INVALID -j DROP
 		
-# Libera loopback e conexoes iniciadas pelo servidor
+# Releases loopback and connections initiated by the server
 		$IPTABLES -I INPUT -d 127.0.0.1 -j ACCEPT
 		$IPTABLES -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 		$IPTABLES -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
 		
 		echo ""
-		echo "##### CARREGANDO POLITICAS PADRAO DAS TABELAS"
+		echo "##### LOADING STANDARD TABLE POLICIES"
 		
 		
-# Define a poli­tica DEFAULT das TABELAS
+# Defines the DEFAULT policy of the TABLES
+
 		$IPTABLES -P INPUT DROP
 		$IPTABLES -P OUTPUT ACCEPT
 		$IPTABLES -P FORWARD DROP
 
-		echo "##### POLITICAS PADRAO DAS TABELAS.........[OK] "
+		echo "##### STANDARD TABLE POLICIES.........[OK] "
 	
 		echo ""
-		echo "##### CARREGANDO REGRAS DO ARQUIVO DE CONFIGURACAO"
+		echo "##### LOADING CONFIGURATION FILE RULES"
 
 		
-# LIBERANDO BITRIX 24
+# RELEASING BITRIX 24
 	$IPTABLES -I INPUT -p ALL -s erimat.bitrix24.com.br -j ACCEPT
 
 sed 1d $CONFIG | while read i;do
@@ -92,17 +93,18 @@ fi
 
 done
 
-		echo "##### REGRAS DO ARQUIVO DE CONFIGURACAO....[OK]"
+		echo "##### CONFIGURATION FILE RULES....[OK]"
 		echo ""
 
-		echo "INICIANDO FAIL2BAN"
+		echo "INITIATING FAIL2BAN"
 		echo ""
 
 		service fail2ban start
 
 		echo "######################################"
-		echo "########## FIREWALL ATIVADO ##########"
+		echo "########## FIREWALL ACTIVE  ##########"
 		echo "######################################"
 		echo ""
 
-#### ESPACO RESERVADO A REGRAS CUSTOMIZADAS
+#### SPACE RESERVED TO CUSTOMIZED RULES
+
